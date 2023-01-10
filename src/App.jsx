@@ -32,6 +32,55 @@ function App() {
             });
     }, []);
 
+
+
+    //Window Reload
+
+
+    useEffect(() => {
+        const userDetails = localStorage.getItem('User-Details');
+        if (userDetails) {
+            setUsers(JSON.parse(userDetails));
+            setLoading(false);
+        } else {
+            fetch('https://randomuser.me/api/?results=50')
+                .then(response => response.json())
+                .then(data => {
+                    const newUsers = data.results.map(user => ({
+                        name: `${user.name.first} ${user.name.last}`,
+                        uuid: `${user.login.uuid}`,
+                        picture: user.picture.large,
+                    }));
+                    setLoading(false)
+                    setUsers(newUsers);
+
+                    localStorage.setItem('User-Details', JSON.stringify(newUsers));
+                });
+        }
+    }, []);
+
+
+    //For refresh Button
+
+    const handleRefresh = () => {
+        setLoading(true)
+        fetch('https://randomuser.me/api/?results=50')
+            .then(response => response.json())
+            .then(data => {
+                const newUsers = data.results.map(user => ({
+                    name: `${user.name.first} ${user.name.last}`,
+                    uuid: `${user.login.uuid}`,
+                    picture: user.picture.large,
+                }));
+                setLoading(false)
+                setUsers(newUsers);
+
+                localStorage.setItem('User-Details', JSON.stringify(newUsers));
+            });
+    }
+
+
+
     //remove the users
 
     const handleDelete = (uuid) => {
@@ -58,7 +107,7 @@ function App() {
             ) : (
                 <div className='container'>
                     <div className='header-container'>
-                        <button>Refresh</button>
+                        <button onClick={handleRefresh}>Refresh</button>
                         <span>No of Users: {users.length}</span>
                     </div>
 
